@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NFC Model - Nature → Farmer → Consumer Interactive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0; padding:0; height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #f3faf7;
+      color: #134e4a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #0f766e;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    h1,h2,h3,h4,h5,h6 {
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #064e3b;
+    }
+    p {
+      line-height: 1.7;
+      font-size: 1rem;
+      color: #134e4a;
+    }
+    button {
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      padding: 12px 24px;
+      background-color: #0f766e;
+      color: #f0fdfa;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgb(15 118 110 / 0.4);
+      user-select: none;
+    }
+    button:hover:not(:disabled) {
+      background-color: #134e4a;
+    }
+    button:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    input, select, textarea {
+      font-family: inherit;
+      border-radius: 8px;
+      border: 1.5px solid #99f6e4;
+      padding: 10px 14px;
+      font-size: 16px;
+      color: #164e4a;
+      background-color: #e0f2fe;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #0f766e;
+      outline: none;
+      box-shadow: 0 0 10px #34d399aa;
+      background-color: #ccfbf1;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+    label {
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+      color: #0f766e;
+    }
+    /* Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #14b8a6, #0f766e);
+      color: #f0fdfa;
+      position: sticky;
+      top:0;
+      z-index: 100;
+      padding: 18px 0;
+      box-shadow: 0 4px 8px #0f766e88;
+      user-select: none;
+    }
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      user-select: none;
+      flex-grow: 1;
+    }
+    nav {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-grow: 1;
+    }
+    nav button {
+      background: transparent;
+      color: #f0fdfa;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      border: 2px solid transparent;
+      transition: background-color 0.3s, border-color 0.3s;
+      user-select: none;
+    }
+    nav button.active, nav button:hover {
+      background-color: #f0fdfa;
+      color: #0f766e;
+      border-color: #0f766e;
+    }
+    /* Tabs layout */
+    main {
+      light: #ecfdf5;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity:1;}
+    }
+    /* Landing: animated chain */
+    .landing {
+      text-align: center;
+      margin-bottom: 40px;
+      user-select: none;
+      line-height: 1.4;
+    }
+    .chain-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .chain-step {
+      background: #d1fae5;
+      border-radius: 24px;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #065f46;
+      box-shadow: 0 6px 16px #14b8a666;
+      position: relative;
+      user-select: none;
+      padding: 12px;
+      text-align: center;
+    }
+    .chain-step img {
+      max-width: 60px;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    /* Arrow */
+    .arrow {
+      width: 60px;
+      height: 60px;
+      color: #14b8a6;
+      flex-shrink: 0;
+      margin-top: 50px;
+      user-select: none;
+    }
+    /* Sustainable Practices Cards */
+    .practices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+      gap: 28px;
+      padding-bottom: 28px;
+    }
+    .practice-card {
+      background: #d1fae5;
+      border-radius: 20px;
+      padding: 28px 26px;
+      box-shadow: 0 8px 20px #14b8a666;
+      transition: box-shadow 0.25s ease;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      outline: none;
+    }
+    .practice-card:hover,
+    .practice-card:focus-visible {
+      box-shadow: 0 16px 48px #0f766eaa;
+      outline-offset: 2px;
+    }
+    .practice-title {
+      font-weight: 900;
+      color: #065f46;
+      font-size: 22px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .practice-title img {
+      max-width: 48px;
+      border-radius: 12px;
+    }
+    .practice-details {
+      font-weight: 500;
+      color: #064e3b;
+      font-size: 16px;
+      flex-grow: 1;
+      max-height: 140px;
+      overflow: hidden;
+      line-height: 1.5;
+      transition: max-height 0.35s ease;
+    }
+    .practice-card.expanded .practice-details {
+      max-height: 1000px;
+    }
+    .expand-toggle {
+      margin-top: 16px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #059669;
+      cursor: pointer;
+      user-select: none;
+      align-self: flex-start;
+      transition: color 0.25s ease;
+      outline: none;
+    }
+    .expand-toggle:hover,
+    .expand-toggle:focus-visible {
+      color: #134e4a;
+      outline-offset: 2px;
+    }
+    /* Graph container */
+    .graph-card {
+      margin-top: 40px;
+      background: #d1fae5;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px #14b8a666;
+      padding: 20px 24px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* Forms Section */
+    form {
+      background: #d1fae5;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 700px;
+      margin: 20px auto 48px;
+      box-shadow: 0 8px 20px #14b8a666;
+      user-select: none;
+    }
+    form .form-group {
+      margin-bottom: 26px;
+    }
+    form label {
+      font-weight: 700;
+      color: #047857;
+      display: block;
+      margin-bottom: 10px;
+    }
+    form select, form input, form textarea {
+      width: 100%;
+      font-size: 17px;
+      padding: 12px 16px;
+      border: 2px solid #34d399;
+      border-radius: 14px;
+      background: #a7f3d0;
+      color: #064e3b;
+      transition: border-color 0.3s ease;
+    }
+    form select:focus, form input:focus, form textarea:focus {
+      border-color: #059669;
+      background: #6ee7b7;
+      outline: none;
+    }
+    form textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    form button[type=submit] {
+      background-color: #10b981;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      padding: 14px 32px;
+      border-radius: 18px;
+      width: 100%;
+      display: block;
+      margin-top: 8px;
+      box-shadow: 0 6px 12px #059669aa;
+      user-select: none;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    form button[type=submit]:hover:not(:disabled),
+    form button[type=submit]:focus-visible:not(:disabled) {
+      background-color: #059669;
+      box-shadow: 0 10px 20px #0f766ecc;
+      outline: none;
+    }
+    form button[type=submit]:disabled {
+      background-color: #86efac;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    /* Confirmation Alert */
+    .alert {
+      background-color: #dcfce7;
+      border: 2px solid #22c55e;
+      color: #166534;
+      padding: 16px 28px;
+      border-radius: 14px;
+      max-width: 720px;
+      margin: 12px auto 24px;
+      font-weight: 600;
+      font-size: 18px;
+      box-shadow: 0 4px 14px #22c55e99;
+      user-select: none;
+    }
+    /* Responsive */
+    @media (max-width: 800px) {
+      header .container {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      nav {
+        justify-content: flex-start;
+        gap: 12px;
+      }
+      .chain-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .chain-step {
+        width: 100%;
+        max-width: 330px;
+        height: auto;
+        padding: 28px 20px;
+        font-size: 18px;
+      }
+      .arrow {
+        margin: 20px 0;
+        transform: rotate(90deg);
+      }
+      .graph-card {
+        max-width: 100%;
+        margin: 32px 0 16px;
+      }
+    }
+    @media (max-width: 450px) {
+      form {
+        padding: 28px 16px;
+      }
+      input, select, textarea {
+        font-size: 15px;
+        padding: 10px 14px;
+      }
+      form button[type=submit] {
+        font-size: 18px;
+        padding: 12px 22px;
+      }
+      .practice-title {
+        font-size: 18px;
+      }
+      .practice-details {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" role="banner">
+      <h1 title="NFC Model: Nature → Farmer → Consumer Model Platform">NFC Model Platform</h1>
+      <nav aria-label="Primary Navigation">
+        <button type="button" class="tab-btn active" data-target="landing" aria-selected="true" role="tab" tabindex="0">Home</button>
+        <button type="button" class="tab-btn" data-target="practices" aria-selected="false" role="tab" tabindex="-1">Sustainable Practices</button>
+        <button type="button" class="tab-btn" data-target="farmer" aria-selected="false" role="tab" tabindex="-1">Farmer Panel</button>
+        <button type="button" class="tab-btn" data-target="consumer" aria-selected="false" role="tab" tabindex="-1">Consumer Panel</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" role="tabpanel" tabindex="0" aria-live="polite">
+    <!-- Landing Page -->
+    <section id="landing" class="tab-panel active" tabindex="0" aria-label="Landing Page" role="tabpanel" aria-hidden="false">
+      <h2>Welcome to the NFC Model</h2>
+      <p>
+        Connecting Nature → Farmer → Consumer<br />
+        Empowering farmers with eco-friendly practices and connecting consumers directly to fresh produce, eliminating middlemen for fair pricing and transparency.
+      </p>
+      <div class="chain-container" aria-label="Nature to Farmer to Consumer chain animation">
+        <div class="chain-step" id="step-nature" aria-describedby="desc-nature">
+          Nature
+          <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/dbe120f0-1b14-4e66-b759-9481961039b4.png" alt="Green leaf icon representing nature" />
+          <div id="desc-nature" class="sr-only">Representing the ecosystem and natural environment</div>
+        </div>
+        <svg class="arrow" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" focusable="false" tabindex="-1">
+          <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        <div class="chain-step" id="step-farmer" aria-describedby="desc-farmer">
+          Farmer
+          <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ea442964-a343-4f11-9553-53a37fff59ba.png" alt="Farmer icon representing farmers working the land sustainably" />
+          <div id="desc-farmer" class="sr-only">Representing farmers working the land sustainably</div>
+        </div>
+        <svg class="arrow" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" focusable="false" tabindex="-1">
+          <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        <div class="chain-step" id="step-consumer" aria-describedby="desc-consumer">
+          Consumer
+          <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7ffda811-e4f1-4a51-a131-9621828eefa1.png" alt="Shopping cart icon representing consumers receiving fresh produce directly" />
+          <div id="desc-consumer" class="sr-only">Representing consumers receiving fresh produce directly</div>
+        </div>
+      </div>
+
+      <section class="graph-card" aria-label="Graph showing sustainable farming adoption statistics">
+        <h3>Sustainable Practice Adoption Over Years</h3>
+        <canvas id="practiceChart" width="600" height="300" aria-describedby="graph-description"></canvas>
+        <p id="graph-description" class="sr-only">Line chart showing growing adoption percentages of various sustainable farming practices from 2015 to 2024.</p>
+      </section>
+    </section>
+
+    <!-- Sustainable Practices -->
+    <section id="practices" class="tab-panel" tabindex="0" aria-label="Sustainable Farming Practices" role="tabpanel" aria-hidden="true">
+      <h2>10 Sustainable Farming Practices</h2>
+      <div class="practices-grid" role="list" aria-live="polite"></div>
+      <section class="graph-card" aria-label="Bar graph detailing resource savings of sustainable practices">
+        <h3>Estimated Resource Savings per Practice (%)</h3>
+        <canvas id="resourceChart" width="600" height="300" aria-describedby="resource-description"></canvas>
+        <p id="resource-description" class="sr-only">Bar chart showing percentage resource and environmental savings for each sustainable practice.</p>
+      </section>
+    </section>
+
+    <!-- Farmer Panel -->
+    <section id="farmer" class="tab-panel" tabindex="0" aria-label="Farmer Request Panel" role="tabpanel" aria-hidden="true">
+      <h2>Farmer Supply Requests</h2>
+      <form id="farmer-request-form" aria-label="Form for farmers to request supplies">
+        <div class="form-group">
+          <label for="farmer-item">Select Item</label>
+          <select id="farmer-item" required aria-required="true" aria-describedby="farmer-item-desc">
+            <option value="" disabled selected>-- Choose an item --</option>
+            <option value="Seeds">Seeds</option>
+            <option value="Organic Fertilizers">Organic Fertilizers</option>
+            <option value="Farming Tools">Farming Tools</option>
+          </select>
+          <small id="farmer-item-desc">Select the supply you want to request</small>
+        </div>
+        <div class="form-group">
+          <label for="farmer-quantity">Quantity</label>
+          <input type="number" id="farmer-quantity" min="1" required aria-required="true" placeholder="Enter quantity" />
+        </div>
+        <div class="form-group">
+          <label for="farmer-notes">Notes (Optional)</label>
+          <textarea id="farmer-notes" placeholder="Any additional information"></textarea>
+        </div>
+        <button type="submit">Submit Request</button>
+      </form>
+      <div id="farmer-confirmation" class="alert" role="alert" style="display:none;"></div>
+    </section>
+
+    <!-- Consumer Panel -->
+    <section id="consumer" class="tab-panel" tabindex="0" aria-label="Consumer Order Panel" role="tabpanel" aria-hidden="true">
+      <h2>Order Fresh Produce</h2>
+      <form id="consumer-order-form" aria-label="Form for consumers to order produce">
+        <div class="form-group">
+          <label for="consumer-category">Produce Category</label>
+          <select id="consumer-category" required aria-required="true" aria-describedby="consumer-category-desc">
+            <option value="" disabled selected>-- Choose a category --</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Grains">Grains</option>
+          </select>
+          <small id="consumer-category-desc">Select category of produce to order</small>
+        </div>
+        <div class="form-group">
+          <label for="consumer-quantity">Quantity (kg)</label>
+          <input type="number" id="consumer-quantity" min="1" required aria-required="true" placeholder="Enter quantity in kg" />
+        </div>
+        <div class="form-group">
+          <label for="consumer-address">Delivery Address</label>
+          <textarea id="consumer-address" required aria-required="true" placeholder="Enter delivery address"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="consumer-notes">Special Instructions (Optional)</label>
+          <textarea id="consumer-notes" placeholder="Any special delivery instructions"></textarea>
+        </div>
+        <button type="submit">Place Order</button>
+      </form>
+      <div id="consumer-confirmation" class="alert" role="alert" style="display:none;"></div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const practicesData = [
+        {
+          title: "Seed Preservation",
+          details: "Store native seeds to maintain biodiversity and ensure resilient crops adaptable to local conditions. Preserving seeds helps safeguard agricultural heritage and supports sustainable crop production.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f73da6af-1215-465c-a15c-6d8e0b61baff.png"
+        },
+        {
+          title: "Organic Fertilizers",
+          details: "Utilize compost, cow dung, biochar, and other natural nutrients instead of chemical fertilizers to improve soil fertility, enhance microbial activity, and reduce pollution.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/647c406d-ae8d-43ce-8402-a34694bfd9f8.png"
+        },
+        {
+          title: "Soil Testing",
+          details: "Regularly test soil for pH, nutrient content, and contaminants to optimize soil health and adjust fertilization or amendments accurately.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0eee1d7f-8dea-4f70-b4e5-8c26b83fed16.png"
+        },
+        {
+          title: "Intercropping",
+          details: "Plant multiple crops together in proximity to promote biodiversity, reduce pests, enhance soil nutrition, and improve yields.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a2a5215c-7011-4ea2-a4cf-0233ea0f2f21.png"
+        },
+        {
+          title: "Multi-layer Farming",
+          details: "Grow crops at different vertical levels (trees, shrubs, ground crops) to maximize land use, increase biodiversity, and improve microclimate resilience.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0ab681b6-98f3-45b9-83a2-3ee32b8a3edc.png"
+        },
+        {
+          title: "No-Till Farming",
+          details: "Avoid soil disturbance by minimizing plowing or tillage to preserve soil structure, maintain moisture, reduce erosion, and enhance carbon sequestration.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5627f215-e239-4b96-8df9-26a44ca4a376.png"
+        },
+        {
+          title: "Sprinkler Irrigation",
+          details: "Implement water-efficient sprinkler irrigation systems to reduce water waste, ensure uniform watering, and improve crop growth in areas with limited water.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/30fd1009-c66e-4d83-95c7-543f403ed418.png"
+        },
+        {
+          title: "Natural Pest Control",
+          details: "Use companion plants like marigold and garlic, colored reflective sheets, and beneficial insects to manage pests naturally without synthetic pesticides.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/78be8cc0-29ce-47d4-9846-b9cf733593cc.png"
+        },
+        {
+          title: "Mulching",
+          details: "Apply organic mulches such as straw, leaves, or crop residues on soil to retain moisture, regulate temperature, and suppress weeds.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3cb4fbd4-b381-478f-9529-17d3f1bf33fc.png"
+        },
+        {
+          title: "Direct to Consumer",
+          details: "Deliver fresh, locally grown farm produce directly to consumers to eliminate intermediaries, ensuring fair prices, transparency, and freshness.",
+          image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7d86bd32-053a-4788-a400-237090583ec7.png"
+        }
+      ];
+
+      const tabs = document.querySelectorAll(".tab-btn");
+      const panels = document.querySelectorAll(".tab-panel");
+      const practicesGrid = document.querySelector(".practices-grid");
+      const farmerForm = document.getElementById("farmer-request-form");
+      const consumerForm = document.getElementById("consumer-order-form");
+      const farmerConfirmation = document.getElementById("farmer-confirmation");
+      const consumerConfirmation = document.getElementById("consumer-confirmation");
+
+      function switchTab(targetId, triggeredByUser = true) {
+        panels.forEach(panel => {
+          if(panel.id === targetId){
+            panel.classList.add("active");
+            panel.setAttribute("aria-hidden", "false");
+            panel.setAttribute("tabindex", "0");
+            if(triggeredByUser) panel.focus();
+          } else {
+            panel.classList.remove("active");
+            panel.setAttribute("aria-hidden", "true");
+            panel.removeAttribute("tabindex");
+          }
+        });
+        tabs.forEach(tab => {
+          const selected = (tab.dataset.target === targetId);
+          tab.classList.toggle("active", selected);
+          tab.setAttribute("aria-selected", selected);
+          tab.tabIndex = selected ? 0 : -1;
+        });
+      }
+
+      tabs.forEach((tab, idx) => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.target));
+        tab.addEventListener("keydown", e => {
+          const length = tabs.length;
+          let newIndex = null;
+          if(e.key === "ArrowRight"){
+            newIndex = (idx + 1) % length;
+            e.preventDefault();
+          } else if(e.key === "ArrowLeft"){
+            newIndex = (idx - 1 + length) % length;
+            e.preventDefault();
+          }
+          if(newIndex !== null) tabs[newIndex].focus();
+        });
+      });
+
+      function renderPractices(){
+        practicesGrid.innerHTML = "";
+        practicesData.forEach((practice) => {
+          const card = document.createElement("article");
+          card.className = "practice-card";
+          card.setAttribute("role", "listitem");
+          card.tabIndex = 0;
+          card.innerHTML = `
+            <h3 class="practice-title"><img src="${practice.image}" alt="" aria-hidden="true" />${practice.title}</h3>
+            <p class="practice-details">${practice.details}</p>
+            <div class="expand-toggle" role="button" tabIndex="0" aria-expanded="false" aria-label="Expand details of ${practice.title}">Show details ▾</div>
+          `;
+          const toggle = card.querySelector(".expand-toggle");
+          const details = card.querySelector(".practice-details");
+          function toggleDetails(){
+            const expanded = card.classList.toggle("expanded");
+            toggle.textContent = expanded ? "Hide details ▴" : "Show details ▾";
+            toggle.setAttribute("aria-expanded", expanded.toString());
+            if(expanded){
+              details.style.maxHeight = details.scrollHeight + "px";
+            } else {
+              details.style.maxHeight = null;
+            }
+          }
+          toggle.addEventListener("click", toggleDetails);
+          toggle.addEventListener("keydown", e => {
+            if(e.key === "Enter" || e.key === " "){
+              e.preventDefault();
+              toggleDetails();
+            }
+          });
+          card.addEventListener("keydown", e => {
+            if(e.key === "Enter" && e.target === card){
+              e.preventDefault();
+              toggleDetails();
+            }
+          });
+          practicesGrid.appendChild(card);
+        });
+        practicesGrid.setAttribute("role", "list");
+      }
+
+      farmerForm.addEventListener("submit", e => {
+        e.preventDefault();
+        farmerConfirmation.style.display = "none";
+
+        const item = farmerForm["farmer-item"].value.trim();
+        const quantity = farmerForm["farmer-quantity"].value.trim();
+        const notes = farmerForm["farmer-notes"].value.trim();
+
+        if(!item){
+          alert("Please select an item to request.");
+          return;
+        }
+        if(!quantity || isNaN(quantity) || +quantity < 1) {
+          alert("Please enter a valid quantity (1 or more).");
+          return;
+        }
+
+        setTimeout(() => {
+          farmerConfirmation.textContent = `Your request for ${item} (Quantity: ${quantity}) has been submitted successfully!`;
+          farmerConfirmation.style.display = "block";
+          farmerForm.reset();
+          farmerForm["farmer-item"].focus();
+        }, 500);
+      });
+
+      consumerForm.addEventListener("submit", e => {
+        e.preventDefault();
+        consumerConfirmation.style.display = "none";
+
+        const category = consumerForm["consumer-category"].value.trim();
+        const quantity = consumerForm["consumer-quantity"].value.trim();
+        const address = consumerForm["consumer-address"].value.trim();
+        const notes = consumerForm["consumer-notes"].value.trim();
+
+        if(!category){
+          alert("Please select a produce category.");
+          return;
+        }
+        if(!quantity || isNaN(quantity) || +quantity < 1){
+          alert("Please enter a valid quantity (1 or more).");
+          return;
+        }
+        if(!address){
+          alert("Please enter a delivery address.");
+          return;
+        }
+
+        setTimeout(() => {
+          consumerConfirmation.textContent = `Your order for ${quantity} kg of ${category} has been placed successfully!`;
+          consumerConfirmation.style.display = "block";
+          consumerForm.reset();
+          consumerForm["consumer-category"].focus();
+        }, 500);
+      });
+
+      const style = document.createElement("style");
+      style.textContent = `.sr-only {
+        position: absolute;
+        width: 1px; height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        border: 0;
+      }`;
+      document.head.appendChild(style);
+
+      renderPractices();
+
+      const practiceStats = {
+        labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+        datasets: [
+          { label: 'Seed Preservation', data: [10,20,35,45,50,60,68,75,80,85], borderColor: '#0f766e', fill: false, tension: 0.3, pointRadius: 4 },
+          { label: 'Organic Fertilizers', data: [5,15,25,37,45,55,65,70,77,82], borderColor: '#15803d', fill: false, tension: 0.3, pointRadius: 4 },
+          { label: 'Soil Testing', data: [3,8,13,20,30,38,49,55,64,70], borderColor: '#22c55e', fill: false, tension: 0.3, pointRadius: 4 },
+          { label: 'Intercropping', data: [4,9,15,23,33,40,52,58,67,71], borderColor: '#4ade80', fill: false, tension: 0.3, pointRadius: 4 }
+        ]
+      };
+
+      const resourceSavings = {
+        labels: ['Seed Preservation','Organic Fertilizers','Soil Testing','Intercropping','Mulching','No-till Farming','Natural Pest Control','Sprinkler Irrigation'],
+        datasets: [{
+          label: 'Estimated Resource Savings (%)',
+          data: [45, 55, 40, 35, 50, 60, 48, 42],
+          backgroundColor: 'rgba(15,118,110,0.7)'
+        }]
+      };
+
+      function renderChart(ctxId, config){
+        const ctx = document.getElementById(ctxId);
+        if(ctx) {
+          new Chart(ctx, config);
+        }
+      }
+
+      window.addEventListener('load', () => {
+        renderChart('practiceChart', {
+          type: 'line',
+          data: practiceStats,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: {color: '#064e3b', font: {weight:'bold', size:14}}},
+              tooltip: {mode:'index', intersect:false}
+            },
+            scales: {
+              x: { ticks: {color:'#0f766e'} },
+              y: { beginAtZero:true, max:100, ticks: {color:'#0f766e', stepSize: 20}, title: {display:true,text:'Adoption (%)',color:'#0f766e',font:{size:14}} }
+            }
+          }
+        });
+        renderChart('resourceChart', {
+          type: 'bar',
+          data: resourceSavings,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display:false },
+              tooltip: {enabled:true, callbacks:{
+                label: ctx => ctx.parsed.y + "%"
+              }},
+            },
+            scales: {
+              x: { ticks: {color:'#064e3b', font:{weight:'bold'}}, grid: {display:false} },
+              y: { beginAtZero:true, max:100, ticks: {color:'#0f766e', stepSize: 10}, title: {display:true,text:'Savings %',color:'#0f766e',font:{size:14}} }
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</html>
+
